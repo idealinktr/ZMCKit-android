@@ -19,7 +19,7 @@ allprojects {
         google()
         mavenCentral()
         maven {
-            url "https://raw.githubusercontent.com/arbabkh/ZMCKit-Android/main/"
+            url "https://raw.githubusercontent.com/idealinktr/ZMCKit-Android/main/"
         }
     }
 }
@@ -31,7 +31,7 @@ In your app-level `build.gradle` file, add the following dependency:
 
 ```groovy
 dependencies {
-    implementation 'com.snap:zmckit:1.0.0' // Update the version as necessary
+    implementation 'com.ziylanmedya:zmckit:1.0.0' // Update the version as necessary
 }
 ```
 

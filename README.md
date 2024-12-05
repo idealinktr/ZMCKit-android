@@ -1,21 +1,11 @@
-Here is an updated version of your README to include handling single lenses and lens groups, along with other refinements:
-
----
-
 # ZMCKit
 
-ZMCKit is an Android library that simplifies the integration of Snap Camera functionalities into your applications. It supports capturing images and videos using single or group lens configurations.
+ZMCKit is an Android library that simplifies the integration of camera functionalities in your applications. This library is designed to work seamlessly with the CameraActivity for capturing images and videos.
 
 ## Table of Contents
 - [Installation](#installation)
 - [Usage](#usage)
-  - [Initialize ZMCKitManager](#initialize-zmckitmanager)
-  - [Show Single Lens](#show-single-lens)
-  - [Show Lens Group](#show-lens-group)
-  - [Handle Camera Capture Results](#handle-camera-capture-results)
 - [License](#license)
-
----
 
 ## Installation
 
@@ -37,7 +27,7 @@ allprojects {
 
 ### Step 2: Add the Dependency
 
-In your app-level `build.gradle` file, include the dependency:
+In your app-level `build.gradle` file, add the following dependency:
 
 ```groovy
 dependencies {
@@ -45,13 +35,11 @@ dependencies {
 }
 ```
 
----
-
 ## Usage
 
-### Initialize ZMCKitManager
+### Step 1: Initialize ZMCKitManager
 
-To start using the camera features, initialize the `ZMCKitManager` in your activity or fragment. Use the provided callbacks to handle camera capture results.
+In your main activity or wherever you want to use the camera functionality, initialize the `ZMCKitManager`:
 
 ```kotlin
 import com.snap.zmckit.ZMCKitManager
@@ -64,109 +52,68 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        zmckitManager = ZMCKitManager(this)
-
-        // Initialize capture launcher with callback
-        zmckitManager.initCaptureLauncher(object : ZMCKitManager.CaptureCallback {
-            override fun onImageCaptured(uri: String) {
-                Log.d("MainActivity", "Image captured: $uri")
-            }
-
-            override fun onVideoCaptured(uri: String) {
-                Log.d("MainActivity", "Video captured: $uri")
-            }
-
-            override fun onCaptureCancelled() {
-                Log.d("MainActivity", "Capture cancelled")
-            }
-
-            override fun onCaptureFailure(exception: Exception) {
-                Log.e("MainActivity", "Capture failed", exception)
-            }
-        })
+        zmckitManager = ZMCKitManager()
+        zmckitManager.init(
+            cameraKitApiToken = CAMERA_KIT_API_TOKEN, // Your API Token
+            cameraKitApplicationId = "", // Your application ID, can keep it blank
+            lensGroupIds = LENS_GROUP_IDS // Your lens group IDs
+        )
     }
 }
 ```
 
----
+### Step 2: Open the Camera
 
-### Show Single Lens
-
-Use the `showProductView` method to display a single lens by specifying its `lensId`:
+To open the camera, call the `openCamera` method:
 
 ```kotlin
-fun showSingleLens() {
-    val snapAPIToken = "your_api_token"
-    val partnerGroupId = "your_group_id"
-    val lensId = "your_lens_id"
+zmckitManager.openCamera()
+```
 
-    zmckitManager.showProductView(
-        snapAPIToken = snapAPIToken,
-        partnerGroupId = partnerGroupId,
-        lensId = lensId
-    )
+### Step 3: Handle Camera Results
+
+Implement the callback to handle the camera results:
+
+```kotlin
+override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    super.onActivityResult(requestCode, resultCode, data)
+    zmckitManager.handleCameraResult(requestCode, resultCode, data)
 }
 ```
 
----
+### Example
 
-### Show Lens Group
-
-To display a group of lenses, use the `showGroupView` method and provide the `partnerGroupId`:
+Here’s a complete example of how to use the `ZMCKit` library in an activity:
 
 ```kotlin
-fun showLensGroup() {
-    val snapAPIToken = "your_api_token"
-    val partnerGroupId = "your_group_id"
+class MainActivity : AppCompatActivity() {
+    
+    private lateinit var zmckitManager: ZMCKitManager
 
-    zmckitManager.showGroupView(
-        snapAPIToken = snapAPIToken,
-        partnerGroupId = partnerGroupId
-    )
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        zmckitManager = ZMCKitManager()
+        zmckitManager.init(
+            cameraKitApiToken = BuildConfig.CAMERA_KIT_API_TOKEN,
+            cameraKitApplicationId = "",
+            lensGroupIds = BuildConfig.LENS_GROUP_IDS
+        )
+
+        // Button click to open camera
+        findViewById<Button>(R.id.openCameraButton).setOnClickListener {
+            zmckitManager.openCamera()
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        zmckitManager.handleCameraResult(requestCode, resultCode, data)
+    }
 }
 ```
-
----
-
-### Handle Camera Capture Results
-
-`ZMCKitManager` provides callbacks to handle image and video capture results:
-
-```kotlin
-zmckitManager.initCaptureLauncher(object : ZMCKitManager.CaptureCallback {
-    override fun onImageCaptured(uri: String) {
-        Log.d("MainActivity", "Image captured: $uri")
-    }
-
-    override fun onVideoCaptured(uri: String) {
-        Log.d("MainActivity", "Video captured: $uri")
-    }
-
-    override fun onCaptureCancelled() {
-        Log.d("MainActivity", "Capture cancelled")
-    }
-
-    override fun onCaptureFailure(exception: Exception) {
-        Log.e("MainActivity", "Capture failed", exception)
-    }
-})
-```
-
-To launch the camera and handle captures:
-
-```kotlin
-zmckitManager.openCamera(
-    cameraFacingFront = true,
-    cameraFacingFlipEnabled = true
-)
-```
-
----
 
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
----
-
-This version includes sections to clarify usage for single and group lenses while ensuring consistency with the methods provided in the updated code. Let me know if you need further refinements!

@@ -1,6 +1,6 @@
 # ZMCKit
 
-ZMCKit is an Android library that simplifies the integration of camera functionalities in your applications. This library is designed to work seamlessly with the CameraActivity for capturing images and videos.
+ZMCKit is an Android library that simplifies the integration of camera functionalities in your applications. This library is designed to work seamlessly with the CameraActivity for capturing images and videos, as well as handling lens changes and other camera configurations.
 
 ## Table of Contents
 - [Installation](#installation)
@@ -31,7 +31,7 @@ In your app-level `build.gradle` file, add the following dependency:
 
 ```groovy
 dependencies {
-    implementation 'com.ziylanmedya:zmckit:1.0.0' // Update the version as necessary
+    implementation 'com.ziylanmedya:zmckit:1.0.1' // Update the version as necessary
 }
 ```
 
@@ -52,34 +52,59 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        zmckitManager = ZMCKitManager()
-        zmckitManager.init(
-            cameraKitApiToken = CAMERA_KIT_API_TOKEN, // Your API Token
-            cameraKitApplicationId = "", // Your application ID, can keep it blank
-            lensGroupIds = LENS_GROUP_IDS // Your lens group IDs
-        )
+        // Initialize ZMCKitManager
+        zmckitManager = ZMCKitManager.getInstance(this)
+
+        // Initialize Capture Launcher and Set Callbacks
+        zmckitManager.initCaptureLauncher(object : ZMCKitManager.CaptureCallback {
+            override fun onImageCaptured(uri: String) {
+            }
+
+            override fun onVideoCaptured(uri: String) {
+            }
+
+            override fun onCaptureCancelled() {
+                println("Capture was cancelled.")
+            }
+
+            override fun onCaptureFailure(exception: Exception) {
+                println("Capture failed.")
+            }
+        })
     }
 }
 ```
 
-### Step 2: Open the Camera
+### Step 2: Launch the Camera
 
-To open the camera, call the `openCamera` method:
+To open the camera for a product or group view, use the following methods:
 
+#### For Single Product View:
 ```kotlin
-zmckitManager.openCamera()
+// Setup button to launch product view
+findViewById<Button>(R.id.showProductButton).setOnClickListener {
+    zmckitManager.showProductView(
+        snapAPIToken = BuildConfig.CAMERA_KIT_API_TOKEN,
+        partnerGroupId = BuildConfig.LENS_GROUP_ID,
+        lensId = BuildConfig.LENS_ID
+    )
+}
+```
+
+#### For Group View:
+```kotlin
+// Setup button to launch group view
+findViewById<Button>(R.id.showGroupButton).setOnClickListener {
+    zmckitManager.showGroupView(
+        snapAPIToken = BuildConfig.CAMERA_KIT_API_TOKEN,
+        partnerGroupId = BuildConfig.LENS_GROUP_ID
+    )
+}
 ```
 
 ### Step 3: Handle Camera Results
 
-Implement the callback to handle the camera results:
-
-```kotlin
-override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-    super.onActivityResult(requestCode, resultCode, data)
-    zmckitManager.handleCameraResult(requestCode, resultCode, data)
-}
-```
+You can handle the results from the camera via the `ActivityResultLauncher` which was initialized when setting up the `ZMCKitManager`. You don’t need to override `onActivityResult()` anymore; the result will be handled automatically by the library.
 
 ### Example
 
@@ -87,32 +112,52 @@ Here’s a complete example of how to use the `ZMCKit` library in an activity:
 
 ```kotlin
 class MainActivity : AppCompatActivity() {
-    
+
     private lateinit var zmckitManager: ZMCKitManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        zmckitManager = ZMCKitManager()
-        zmckitManager.init(
-            cameraKitApiToken = BuildConfig.CAMERA_KIT_API_TOKEN,
-            cameraKitApplicationId = "",
-            lensGroupIds = BuildConfig.LENS_GROUP_IDS
-        )
+        zmckitManager = ZMCKitManager.getInstance(this)
 
-        // Button click to open camera
-        findViewById<Button>(R.id.openCameraButton).setOnClickListener {
-            zmckitManager.openCamera()
+        // Initialize Capture Launcher and Set Callbacks
+        zmckitManager.initCaptureLauncher(object : ZMCKitManager.CaptureCallback {
+            override fun onImageCaptured(uri: String) {
+            }
+
+            override fun onVideoCaptured(uri: String) {
+            }
+
+            override fun onCaptureCancelled() {
+                println("Capture was cancelled.")
+            }
+
+            override fun onCaptureFailure(exception: Exception) {
+                println("Capture failed.")
+            }
+        })
+
+        // Buttons to show product or group views
+        findViewById<Button>(R.id.showProductButton).setOnClickListener {
+            zmckitManager.showProductView(
+                snapAPIToken = BuildConfig.CAMERA_KIT_API_TOKEN,
+                partnerGroupId = BuildConfig.LENS_GROUP_ID,
+                lensId = BuildConfig.LENS_ID
+            )
         }
-    }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        zmckitManager.handleCameraResult(requestCode, resultCode, data)
+        findViewById<Button>(R.id.showGroupButton).setOnClickListener {
+            zmckitManager.showGroupView(
+                snapAPIToken = BuildConfig.CAMERA_KIT_API_TOKEN,
+                partnerGroupId = BuildConfig.LENS_GROUP_ID
+            )
+        }
     }
 }
 ```
+
+In this example, the camera functionality is integrated with buttons to switch between product view and group view. The results are automatically handled in the background by `ZMCKitManager` through the registered callbacks.
 
 ## License
 

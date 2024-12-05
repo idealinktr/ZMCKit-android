@@ -58,9 +58,11 @@ class MainActivity : AppCompatActivity() {
         // Initialize Capture Launcher and Set Callbacks
         zmckitManager.initCaptureLauncher(object : ZMCKitManager.CaptureCallback {
             override fun onImageCaptured(uri: String) {
+                println("Image Captured.")
             }
 
             override fun onVideoCaptured(uri: String) {
+                println("Video Captured.")
             }
 
             override fun onCaptureCancelled() {
@@ -71,6 +73,12 @@ class MainActivity : AppCompatActivity() {
                 println("Capture failed.")
             }
         })
+
+        // Set a listener to handle lens change
+        zmckitManager.onLensChange { lensId ->
+            // Handle the lens change event
+            println("Lens changed: $lensId")
+        }
     }
 }
 ```
@@ -102,10 +110,6 @@ findViewById<Button>(R.id.showGroupButton).setOnClickListener {
 }
 ```
 
-### Step 3: Handle Camera Results
-
-You can handle the results from the camera via the `ActivityResultLauncher` which was initialized when setting up the `ZMCKitManager`. You don’t need to override `onActivityResult()` anymore; the result will be handled automatically by the library.
-
 ### Example
 
 Here’s a complete example of how to use the `ZMCKit` library in an activity:
@@ -124,9 +128,11 @@ class MainActivity : AppCompatActivity() {
         // Initialize Capture Launcher and Set Callbacks
         zmckitManager.initCaptureLauncher(object : ZMCKitManager.CaptureCallback {
             override fun onImageCaptured(uri: String) {
+                println("Image Captured.")
             }
 
             override fun onVideoCaptured(uri: String) {
+                println("Video Captured.")
             }
 
             override fun onCaptureCancelled() {
@@ -137,6 +143,12 @@ class MainActivity : AppCompatActivity() {
                 println("Capture failed.")
             }
         })
+
+        // Set a listener to handle lens change
+        zmckitManager.onLensChange { lensId ->
+            // Handle the lens change event
+            println("Lens changed: $lensId")
+        }
 
         // Buttons to show product or group views
         findViewById<Button>(R.id.showProductButton).setOnClickListener {
